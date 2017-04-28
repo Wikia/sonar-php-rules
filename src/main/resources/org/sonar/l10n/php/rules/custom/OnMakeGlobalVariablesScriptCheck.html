@@ -1,0 +1,31 @@
+<p>
+	Using the <code>OnMakeGlobalVariablesScript</code> MediaWiki hook to expose configuration variables
+	to JavaScript is deprecated. Configuration variables should be added directly to the <code>OutputPage</code>
+	alongside JavaScript assets using <code>addJsConfigVars</code> method.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+	class MyExtensionHooks {
+		public static function onMakeGlobalVariablesScript( &$vars ) {
+			$vars['wgFoo'] = 5;
+			return true;
+		}
+
+		public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) {
+			$out->addModules( 'my.ext.module' );
+			return true;
+		}
+	}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+	class MyExtensionHooks {
+		public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) {
+			$out->addJsConfigVars( [
+				'wgFoo' => 5
+			] );
+			$out->addModules( 'my.ext.module' );
+			return true;
+		}
+	}
+</pre>

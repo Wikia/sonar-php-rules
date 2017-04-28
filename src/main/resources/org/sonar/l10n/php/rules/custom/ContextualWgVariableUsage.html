@@ -1,0 +1,37 @@
+<p>
+	The MediaWiki global variables <code>wgArticle</code>, <code>wgOut</code>, <code>wgTitle</code>,
+	<code>wgUser</code> and <code>wgRequest</code> are dependent on the context of the current request.
+	The <code>RequestContext</code> class should be used instead to remove dependency on global scope,
+	thus increasing testability and making the code more deterministic.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+	class Example {
+		function test() {
+			global $wgArticle, $wgOut, $wgTitle, $wgRequest, $wgUser;
+
+			if ( $wgTitle->inNamespace( NS_TALK ) && $wgUser->isAllowed( 'ninja' ) ) {
+				$wgRequest->assertValidWriteRequest();
+				$wgArticle->doEdit( 'test' );
+			}
+
+			$wgOut->addWikiMsg( 'foo-bar' );
+		}
+	}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+	class Example extends ContextSource {
+		function test() {
+			if ( $this->getTitle()->inNamespace( NS_TALK ) && $this->getUser()->isAllowed( 'ninja' ) ) {
+				$this->getRequest()->assertValidWriteRequest();
+
+				if ( $this->getContext()->canUseWikiPage() ) {
+					$this->getContext()->getWikiPage()->doEdit( 'test' );
+				}
+			}
+
+			$this->getOutput()->addWikiMsg( 'foo-bar' );
+		}
+	}
+</pre>

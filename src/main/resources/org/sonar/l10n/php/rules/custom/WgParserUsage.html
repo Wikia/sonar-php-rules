@@ -1,0 +1,24 @@
+<p>
+	Relying on the global <code>wgParser</code> instance of the MediaWiki parser can result in unexpected behavior,
+	because other functions might modify its properties and configuration.
+	A freshly initialized <code>Parser</code> with context-based <code>ParserOptions</code>,
+	or a managed instance from <code>ParserPool</code> should be used instead.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+	function test( $str ) {
+		global $wgParser;
+
+		return $wgParser->parse( $str );
+	}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+	function test( $str ) {
+		$parser = ParserPool::get();
+		$out = $parser->parse( $str );
+
+		ParserPool::release();
+		return $out;
+	}
+</pre>

@@ -1,0 +1,25 @@
+<p>
+	<code>Wikia::log</code> is a deprecated logging function.
+	It does not support our Logstash/ES stack, so specifying log level or adding extra metadata is not supported.
+	The <code>WikiaLogger</code> class should be used instead.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+	class Foo {
+		function bar() {
+			$aVar = 5;
+			Wikia::log( __METHOD__ . ': test - ' . $aVar );
+		}
+	}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+	class Foo {
+		use Loggable;
+
+		function bar() {
+			$aVar = 5;
+			$this->debug( 'test', [ 'aVar' => $aVar ] );
+		}
+	}
+</pre>

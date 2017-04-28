@@ -1,0 +1,17 @@
+<p>
+	Using MediaWiki's internationalization functions with the <code>plain</code> output format can have unexpected consequences,
+	because this format does not parse language-specific magic words such as GENDER or PLURAL, and does not escape content for HTML.
+	<code>text</code> format should be used instead, or <code>escaped</code> if the content should be sanitized.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+	function foo() {
+		return wfMessage( 'foo' )->plain();
+	}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+	function foo() {
+		return wfMessage( 'foo' )->text();
+	}
+</pre>

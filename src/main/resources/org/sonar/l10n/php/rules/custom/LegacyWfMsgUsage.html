@@ -1,0 +1,35 @@
+<p>
+	MediaWiki's legacy <code>wfMsg*</code> internationalization functions are deprecated, difficult to use and make
+	writing secure, sanitized code consistent.
+	The modern Messaging API should be used via <code>wfMessage</code> (or <code>$this->msg()</code> in context-aware classes).
+	See <a href="https://www.mediawiki.org/wiki/Manual:Messages_API#Help_with_replacing_deprecated_wfMsg.2A_functions">the official documentation</a>
+	on replacing deprecated <code>wfMsg</code> functions.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+	function getMessages() {
+		return [
+			wfMsg( 'key' ),
+			wfMsgExt( 'key', array( 'parsemag' ), 'apple' ),
+			wfMsgExt( 'key', array( 'parse' ), 'apple' ),
+			wfMsgExt( 'key', array( 'parseinline' ), 'apple' ),
+			wfMsgExt( 'key', array( 'escape' ), 'apple' ),
+			wfMsgHtml( 'key', '<html>param</html>' ),
+			wfMsgForContent( 'key' )
+		];
+	}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function getMessages() {
+	return [
+		wfMessage( 'key' )->text(),
+		wfMessage( 'key', 'apple' )->text(),
+		wfMessage( 'key', 'apple' )->parseAsBlock(),
+		wfMessage( 'key', 'apple' )->parse(),
+		wfMessage( 'key', 'apple' )->escaped(),
+		wfMessage( 'key' )->rawParams( '<html>param</html>' )->escaped(),
+		wfMessage( 'key' )->inContentLanguage()->text()
+	];
+}
+</pre>

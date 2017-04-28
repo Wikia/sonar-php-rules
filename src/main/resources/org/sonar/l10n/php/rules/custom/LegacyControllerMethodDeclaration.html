@@ -1,0 +1,20 @@
+<p>
+	Nirvana controller methods in the <code>executeFooBar</code> format that expect their input as an array parameter are deprecated.
+	They should use Nirvana's framework variable <code>$this->request</code> to access request data, and the method name should not start with execute.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+	class LegacyController extends WikiaController {
+		public function executeAnAction( $params ) {
+			$number = (int) $params['number'];
+		}
+	}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+	class ModernController extends WikiaController {
+		public function anAction() {
+			$number = $this->request->getInt( 'number' );
+		}
+	}
+</pre>
