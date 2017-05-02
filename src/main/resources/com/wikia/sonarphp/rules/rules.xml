@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="rules.xsd">
+	<rule>
+		<key>ContextualWgVariableUsage</key>
+
+		<name>Context-dependent MediaWiki global variables should not be used</name>
+		<description><![CDATA[
+			<p>
+				The MediaWiki global variables <code>wgArticle</code>, <code>wgOut</code>, <code>wgTitle</code>,
+				<code>wgUser</code> and <code>wgRequest</code> are dependent on the context of the current request.
+				The <code>RequestContext</code> class should be used instead to remove dependency on global scope,
+				thus increasing testability and making the code more deterministic.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				class Example {
+					function test() {
+						global $wgArticle, $wgOut, $wgTitle, $wgRequest, $wgUser;
+
+						if ( $wgTitle->inNamespace( NS_TALK ) && $wgUser->isAllowed( 'ninja' ) ) {
+							$wgRequest->assertValidWriteRequest();
+							$wgArticle->doEdit( 'test' );
+						}
+
+						$wgOut->addWikiMsg( 'foo-bar' );
+					}
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+				class Example extends ContextSource {
+					function test() {
+						if ( $this->getTitle()->inNamespace( NS_TALK ) && $this->getUser()->isAllowed( 'ninja' ) ) {
+							$this->getRequest()->assertValidWriteRequest();
+
+							if ( $this->getContext()->canUseWikiPage() ) {
+								$this->getContext()->getWikiPage()->doEdit( 'test' );
+							}
+						}
+
+						$this->getOutput()->addWikiMsg( 'foo-bar' );
+					}
+				}
+			</pre>
+		]]></description>
+
+		<tag>clumsy</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+	<rule>
+		<key>LegacyControllerMethodDeclaration</key>
+		<name>Nirvana controller methods must adhere to conventions</name>
+		<description><![CDATA[
+			<p>
+				Nirvana controller methods in the <code>executeFooBar</code> format that expect their input as an array parameter are deprecated.
+				They should use Nirvana's framework variable <code>$this->request</code> to access request data, and the method name should not start with execute.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				class LegacyController extends WikiaController {
+					public function executeAnAction( $params ) {
+						$number = (int) $params['number'];
+					}
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+				class ModernController extends WikiaController {
+					public function anAction() {
+						$number = $this->request->getInt( 'number' );
+					}
+				}
+			</pre>
+		]]></description>
+
+		<tag>convention</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+	<rule>
+		<key>LegacyWfMsgUsage</key>
+		<name>Deprecated MediaWiki i18n functions should not be used</name>
+		<description><![CDATA[
+			<p>
+				MediaWiki's legacy <code>wfMsg*</code> internationalization functions are deprecated, difficult to use and make
+				writing secure, sanitized code consistent.
+				The modern Messaging API should be used via <code>wfMessage</code> (or <code>$this->msg()</code> in context-aware classes).
+				See <a href="https://www.mediawiki.org/wiki/Manual:Messages_API#Help_with_replacing_deprecated_wfMsg.2A_functions">the official documentation</a>
+				on replacing deprecated <code>wfMsg</code> functions.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				function getMessages() {
+					return [
+						wfMsg( 'key' ),
+						wfMsgExt( 'key', array( 'parsemag' ), 'apple' ),
+						wfMsgExt( 'key', array( 'parse' ), 'apple' ),
+						wfMsgExt( 'key', array( 'parseinline' ), 'apple' ),
+						wfMsgExt( 'key', array( 'escape' ), 'apple' ),
+						wfMsgHtml( 'key', '<html>param</html>' ),
+						wfMsgForContent( 'key' )
+					];
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+			function getMessages() {
+				return [
+					wfMessage( 'key' )->text(),
+					wfMessage( 'key', 'apple' )->text(),
+					wfMessage( 'key', 'apple' )->parseAsBlock(),
+					wfMessage( 'key', 'apple' )->parse(),
+					wfMessage( 'key', 'apple' )->escaped(),
+					wfMessage( 'key' )->rawParams( '<html>param</html>' )->escaped(),
+					wfMessage( 'key' )->inContentLanguage()->text()
+				];
+			}
+			</pre>
+		]]></description>
+
+		<tag>clumsy</tag>
+		<tag>unpredictable</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+	<rule>
+		<key>OnMakeGlobalVariablesScript</key>
+		<name>OnMakeGlobalVariablesScript hook should not be used to add JS configuration variables</name>
+		<description><![CDATA[
+			<p>
+				Using the <code>OnMakeGlobalVariablesScript</code> MediaWiki hook to expose configuration variables
+				to JavaScript is deprecated. Configuration variables should be added directly to the <code>OutputPage</code>
+				alongside JavaScript assets using <code>addJsConfigVars</code> method.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				class MyExtensionHooks {
+					public static function onMakeGlobalVariablesScript( &$vars ) {
+						$vars['wgFoo'] = 5;
+						return true;
+					}
+
+					public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) {
+						$out->addModules( 'my.ext.module' );
+						return true;
+					}
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+				class MyExtensionHooks {
+					public static function onBeforePageDisplay( OutputPage $out, Skin $skin ) {
+						$out->addJsConfigVars( [
+							'wgFoo' => 5
+						] );
+						$out->addModules( 'my.ext.module' );
+						return true;
+					}
+				}
+			</pre>
+		]]></description>
+
+		<tag>clumsy</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+	<rule>
+		<key>PlainFormatWfMessage</key>
+		<name>MediaWiki i18n functions should not be used with plain() output format</name>
+		<description><![CDATA[
+			<p>
+				Using MediaWiki's internationalization functions with the <code>plain</code> output format can have unexpected consequences,
+				because this format does not parse language-specific magic words such as GENDER or PLURAL, and does not escape content for HTML.
+				<code>text</code> format should be used instead, or <code>escaped</code> if the content should be sanitized.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				function foo() {
+					return wfMessage( 'foo' )->plain();
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+				function foo() {
+					return wfMessage( 'foo' )->text();
+				}
+			</pre>
+		]]></description>
+
+		<type>BUG</type>
+		<severity>MAJOR</severity>
+		<tag>security</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+	<rule>
+		<key>WgParserUsage</key>
+		<name>Global wgParser Parser instance should not be used</name>
+		<description><![CDATA[
+			<p>
+				Relying on the global <code>wgParser</code> instance of the MediaWiki parser can result in unexpected behavior,
+				because other functions might modify its properties and configuration.
+				A freshly initialized <code>Parser</code> with context-based <code>ParserOptions</code>,
+				or a managed instance from <code>ParserPool</code> should be used instead.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				function test( $str ) {
+					global $wgParser;
+
+					return $wgParser->parse( $str );
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+				function test( $str ) {
+					$parser = ParserPool::get();
+					$out = $parser->parse( $str );
+
+					ParserPool::release();
+					return $out;
+				}
+			</pre>
+		]]></description>
+
+		<type>BUG</type>
+		<severity>MAJOR</severity>
+		<tag>unpredictable</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+	<rule>
+		<key>WikiaLogUsage</key>
+		<name>Wikia::log method should not be used for logging</name>
+		<description><![CDATA[
+			<p>
+				<code>Wikia::log</code> is a deprecated logging function.
+				It does not support our Logstash/ES stack, so specifying log level or adding extra metadata is not supported.
+				The <code>WikiaLogger</code> class should be used instead.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				class Foo {
+					function bar() {
+						$aVar = 5;
+						Wikia::log( __METHOD__ . ': test - ' . $aVar );
+					}
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+				class Foo {
+					use Loggable;
+
+					function bar() {
+						$aVar = 5;
+						$this->debug( 'test', [ 'aVar' => $aVar ] );
+					}
+				}
+			</pre>
+		]]></description>
+
+		<tag>convention</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+</rules>
