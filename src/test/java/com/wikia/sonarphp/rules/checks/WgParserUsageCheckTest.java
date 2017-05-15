@@ -1,5 +1,6 @@
 package com.wikia.sonarphp.rules.checks;
 
+import static com.wikia.sonarphp.TestHelper.getUselessWrapperClassForFile;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
 
@@ -20,6 +21,9 @@ public class WgParserUsageCheckTest {
 
 	@Test
 	public void wgParserUsageIsNonCompliant() {
-		PHPCheckTest.check(new WgParserUsageCheck(), new File("src/test/resources/WgParserUsageCheck.php"));
+		PHPCheckTest.check(
+				new WgParserUsageCheck(),
+        getUselessWrapperClassForFile("src/test/resources/WgParserUsageCheck.php")
+    );
 	}
 }

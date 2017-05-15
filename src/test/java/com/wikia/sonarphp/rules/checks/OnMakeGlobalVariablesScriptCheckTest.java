@@ -1,5 +1,6 @@
 package com.wikia.sonarphp.rules.checks;
 
+import static com.wikia.sonarphp.TestHelper.getUselessWrapperClassForFile;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
 
@@ -20,6 +21,9 @@ public class OnMakeGlobalVariablesScriptCheckTest {
 
 	@Test
 	public void onMakeGlobalVariablesScriptHookIsNonCompliant() {
-		PHPCheckTest.check(new OnMakeGlobalVariablesScriptCheck(), new File("src/test/resources/OnMakeGlobalVariablesScriptCheck.php"));
+		PHPCheckTest.check(
+				new OnMakeGlobalVariablesScriptCheck(),
+				getUselessWrapperClassForFile("src/test/resources/OnMakeGlobalVariablesScriptCheck.php")
+    );
 	}
 }

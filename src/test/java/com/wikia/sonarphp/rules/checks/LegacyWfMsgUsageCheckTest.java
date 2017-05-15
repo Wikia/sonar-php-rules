@@ -2,6 +2,7 @@ package com.wikia.sonarphp.rules.checks;
 
 import com.wikia.sonarphp.rules.PHPRuleDefinitions;
 
+import static com.wikia.sonarphp.TestHelper.getUselessWrapperClassForFile;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.hasItem;
 
@@ -20,6 +21,9 @@ public class LegacyWfMsgUsageCheckTest {
 
 	@Test
 	public void wfMsgFunctionCallsAreNonCompliant() {
-		PHPCheckTest.check(new LegacyWfMsgUsageCheck(), new File("src/test/resources/LegacyWfMsgUsageCheck.php"));
+		PHPCheckTest.check(
+				new LegacyWfMsgUsageCheck(),
+        getUselessWrapperClassForFile("src/test/resources/LegacyWfMsgUsageCheck.php")
+    );
 	}
 }

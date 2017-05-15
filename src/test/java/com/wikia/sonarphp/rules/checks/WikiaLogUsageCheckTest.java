@@ -1,5 +1,6 @@
 package com.wikia.sonarphp.rules.checks;
 
+import static com.wikia.sonarphp.TestHelper.getUselessWrapperClassForFile;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
 
@@ -20,6 +21,9 @@ public class WikiaLogUsageCheckTest {
 
 	@Test
 	public void wikiaLogMethodIsNonCompliant() {
-		PHPCheckTest.check(new WikiaLogUsageCheck(), new File("src/test/resources/WikiaLogUsageCheck.php"));
+		PHPCheckTest.check(
+				new WikiaLogUsageCheck(),
+        getUselessWrapperClassForFile("src/test/resources/WikiaLogUsageCheck.php")
+    );
 	}
 }

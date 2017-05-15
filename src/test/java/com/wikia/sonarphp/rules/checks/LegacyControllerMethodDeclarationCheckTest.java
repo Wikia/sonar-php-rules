@@ -1,5 +1,6 @@
 package com.wikia.sonarphp.rules.checks;
 
+import static com.wikia.sonarphp.TestHelper.getUselessWrapperClassForFile;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
 
@@ -20,6 +21,9 @@ public class LegacyControllerMethodDeclarationCheckTest {
 
 	@Test
 	public void legacyControllerMethodDeclarationsAreNoncompliant() {
-		PHPCheckTest.check(new LegacyControllerMethodDeclarationCheck(), new File("src/test/resources/LegacyControllerMethodDeclarationCheck.php"));
+		PHPCheckTest.check(
+				new LegacyControllerMethodDeclarationCheck(),
+				getUselessWrapperClassForFile("src/test/resources/LegacyControllerMethodDeclarationCheck.php")
+    );
 	}
 }

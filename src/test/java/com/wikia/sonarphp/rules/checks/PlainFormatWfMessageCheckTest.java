@@ -1,5 +1,6 @@
 package com.wikia.sonarphp.rules.checks;
 
+import static com.wikia.sonarphp.TestHelper.getUselessWrapperClassForFile;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
 
@@ -20,6 +21,9 @@ public class PlainFormatWfMessageCheckTest {
 
 	@Test
 	public void plainFormatMessagesAreNonCompliant() {
-		PHPCheckTest.check(new PlainFormatWfMessageCheck(), new File("src/test/resources/PlainFormatWfMessageCheck.php"));
+		PHPCheckTest.check(
+			new PlainFormatWfMessageCheck(),
+			getUselessWrapperClassForFile("src/test/resources/PlainFormatWfMessageCheck.php")
+		);
 	}
 }
