@@ -1,20 +1,13 @@
 package com.wikia.sonarphp.rules;
 
-import com.wikia.sonarphp.rules.checks.ContextualWgVariableUsageCheck;
-import com.wikia.sonarphp.rules.checks.LegacyControllerMethodDeclarationCheck;
-import com.wikia.sonarphp.rules.checks.LegacyWfMsgUsageCheck;
-import com.wikia.sonarphp.rules.checks.OnMakeGlobalVariablesScriptCheck;
-import com.wikia.sonarphp.rules.checks.PlainFormatWfMessageCheck;
-import com.wikia.sonarphp.rules.checks.WgParserUsageCheck;
-import com.wikia.sonarphp.rules.checks.WikiaLogUsageCheck;
-import com.wikia.sonarphp.rules.xml.RulesXmlInputStreamFactory;
+import com.wikia.sonarphp.rules.checks.*;
+import com.wikia.sonarphp.rules.xml.RulesXmlReaderFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.plugins.php.api.visitors.PHPCustomRulesDefinition;
 
-import java.io.InputStreamReader;
 import java.io.Reader;
 
 import javax.xml.XMLConstants;
@@ -25,14 +18,14 @@ import javax.xml.validation.Validator;
 
 public class PHPRuleDefinitions extends PHPCustomRulesDefinition {
 
-	private RulesXmlInputStreamFactory xmlFactory;
+	private RulesXmlReaderFactory xmlFactory;
 
 	public PHPRuleDefinitions() {
-		xmlFactory = new RulesXmlInputStreamFactory();
+		xmlFactory = new RulesXmlReaderFactory();
 	}
 
 	@VisibleForTesting
-	public PHPRuleDefinitions(RulesXmlInputStreamFactory xmlFactory) {
+	public PHPRuleDefinitions(RulesXmlReaderFactory xmlFactory) {
 		this.xmlFactory = xmlFactory;
 	}
 
@@ -49,15 +42,18 @@ public class PHPRuleDefinitions extends PHPCustomRulesDefinition {
 	@Override
 	public void define(Context context) {
 		try (
-			Reader xmlStreamValidationReader = new InputStreamReader(xmlFactory.getRulesXmlStream());
-			Reader xmlStreamRulesDefinitionReader = new InputStreamReader(xmlFactory.getRulesXmlStream());
-			Reader xsdStreamReader = new InputStreamReader(xmlFactory.getRulesXsdStream())
+			Reader xmlStreamValidationReader = xmlFactory.newRulesXmlReader();
+			Reader xmlStreamRulesDefinitionReader = xmlFactory.newRulesXmlReader();
+			Reader xsdStreamReader = xmlFactory.newRulesXsdReader()
 		) {
+			StreamSource xsdStreamSource = new StreamSource(xsdStreamReader);
+			StreamSource xmlStreamSource = new StreamSource(xmlStreamValidationReader);
+
 			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = schemaFactory.newSchema(new StreamSource(xsdStreamReader));
+			Schema schema = schemaFactory.newSchema(xsdStreamSource);
 			Validator validator = schema.newValidator();
 
-			validator.validate(new StreamSource(xmlStreamValidationReader));
+			validator.validate(xmlStreamSource);
 
 			NewRepository repo = context.createRepository(repositoryKey(), "php").setName(repositoryName());
 			RulesDefinitionXmlLoader xmlLoader = new RulesDefinitionXmlLoader();
