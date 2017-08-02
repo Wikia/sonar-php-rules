@@ -16,6 +16,7 @@ public class TestHelper {
 		DefaultInputFile inputFile = new DefaultInputFile("moduleKey", file.getName())
 			.setModuleBaseDir(file.getParentFile().toPath())
 			.setCharset(Charset.defaultCharset());
+
 		try {
 			inputFile.initMetadata(new String(Files.readAllBytes(file.toPath()), Charset.defaultCharset()));
 		} catch (IOException e) {

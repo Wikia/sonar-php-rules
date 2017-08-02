@@ -4,19 +4,16 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.php.api.tree.Tree.Kind;
 import org.sonar.plugins.php.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.php.api.tree.expression.ArrayAccessTree;
-import org.sonar.plugins.php.api.tree.expression.LiteralTree;
 import org.sonar.plugins.php.api.visitors.PHPVisitorCheck;
-
-import javax.annotation.Nonnull;
 
 @Rule(key = "OnMakeGlobalVariablesScript")
 public class OnMakeGlobalVariablesScriptCheck extends PHPVisitorCheck {
-	final private static String MESSAGE = "Don't use an OnMakeGlobalVariablesScript hook handler to register JS variables.";
-	final private static String WG_HOOKS = "$wgHooks";
-	final private static String ON_MAKE_GLOBAL_VARIABLES_SCRIPT = "onmakeglobalvariablesscript";
+	private final static String MESSAGE = "Don't use an OnMakeGlobalVariablesScript hook handler to register JS variables.";
+	private final static String WG_HOOKS = "$wgHooks";
+	private final static String ON_MAKE_GLOBAL_VARIABLES_SCRIPT = "onmakeglobalvariablesscript";
 
 	@Override
-	public void visitArrayAccess(@Nonnull ArrayAccessTree tree) {
+	public void visitArrayAccess(ArrayAccessTree tree) {
 		if (
 		    tree.object().is(Kind.VARIABLE_IDENTIFIER) &&
 		    tree.object().toString().equals(WG_HOOKS) &&
@@ -31,7 +28,7 @@ public class OnMakeGlobalVariablesScriptCheck extends PHPVisitorCheck {
 	}
 
 	@Override
-	public void visitMethodDeclaration(@Nonnull MethodDeclarationTree tree) {
+	public void visitMethodDeclaration(MethodDeclarationTree tree) {
 		if (tree.name().text().toLowerCase().equals(ON_MAKE_GLOBAL_VARIABLES_SCRIPT)) {
 			context().newIssue(this, tree, MESSAGE);
 		}

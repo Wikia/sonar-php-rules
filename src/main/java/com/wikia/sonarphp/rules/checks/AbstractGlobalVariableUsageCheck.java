@@ -8,23 +8,21 @@ import org.sonar.plugins.php.api.visitors.PHPVisitorCheck;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-
 public abstract class AbstractGlobalVariableUsageCheck extends PHPVisitorCheck {
-	final private static String WG = "wg";
+	private final static String WG = "wg";
 
 	private Set<String> wgVars;
 	private String message;
 
 	private MemberAccessTree wgVariableLookup;
 
-	public AbstractGlobalVariableUsageCheck(String message, Set<String> wgVars) {
+	AbstractGlobalVariableUsageCheck(String message, Set<String> wgVars) {
 		this.message = message;
 		this.wgVars = wgVars;
 	}
 
 	@Override
-	public void visitGlobalStatement(@Nonnull GlobalStatementTree tree) {
+	public void visitGlobalStatement(GlobalStatementTree tree) {
 		tree.variables().forEach(var -> {
 			if (var.is(Kind.VARIABLE_IDENTIFIER)) {
 				String varName = var.toString().substring(1).toLowerCase();
@@ -39,7 +37,7 @@ public abstract class AbstractGlobalVariableUsageCheck extends PHPVisitorCheck {
 	}
 
 	@Override
-	public void visitVariableIdentifier(@Nonnull VariableIdentifierTree tree) {
+	public void visitVariableIdentifier(VariableIdentifierTree tree) {
 		if (
 			tree.text().toLowerCase().substring(1).equals(WG) &&
 			wgVariableLookup != null &&
@@ -52,7 +50,7 @@ public abstract class AbstractGlobalVariableUsageCheck extends PHPVisitorCheck {
 	}
 
 	@Override
-	public void visitMemberAccess(@Nonnull MemberAccessTree tree) {
+	public void visitMemberAccess(MemberAccessTree tree) {
 		if (tree.member().is(Kind.NAME_IDENTIFIER)) {
 			String propName = tree.member().toString().toLowerCase();
 

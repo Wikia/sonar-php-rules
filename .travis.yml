@@ -3,5 +3,3 @@ sudo: false
 language: java
 jdk:
   - oraclejdk8
-notifications:
-  email: false
