@@ -231,6 +231,44 @@
 		<remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
 	</rule>
 	<rule>
+		<key>ThisPassedByReference</key>
+		<name>"$this" should not be passed by reference</name>
+		<description><![CDATA[
+			<p>
+				<code>$this</code> can no longer be passed by reference in PHP 7.1 and newer - a value will be passed instead.
+				This can cause issues with older code that explicitly expect a reference.
+				Explicitly passing <code>$this</code> by reference is not needed since PHP 4 and should be removed.
+			</p>
+			<h2>Noncompliant Code Example</h2>
+			<pre>
+				class Foo {
+				  public function bar() {
+				    Hooks::run( 'Foo', [ &$this ] );
+				  }
+				}
+			</pre>
+			<h2>Compliant Solution</h2>
+			<pre>
+				class Foo {
+				  public function bar() {
+				    Hooks::run( 'Foo', [ $this ] );
+				  }
+				}
+			</pre>
+			<h2>See</h2>
+			<ul>
+			  <li><a href="https://wiki.php.net/rfc/this_var">PHP RFC: Fix inconsistent behavior of $this variable</a></li>
+			  <li><a href="https://bugs.php.net/bug.php?id=73751">Bug #73751: 7.1.0 changed behaviour of &$this when used in callback</a></li>
+			</ul>
+		]]></description>
+
+    <type>CODE_SMELL</type>
+    <severity>MAJOR</severity>
+    <tag>obsolete</tag>
+		<remediationFunction>CONSTANT_ISSUE</remediationFunction>
+    <remediationFunctionBaseEffort>20min</remediationFunctionBaseEffort>
+	</rule>
+	<rule>
 		<key>WikiaLogUsage</key>
 		<name>Wikia::log method should not be used for logging</name>
 		<description><![CDATA[
