@@ -70,7 +70,8 @@ public class PHPRuleDefinitions extends PHPCustomRulesDefinition {
 		return ImmutableList.of(
 			ContextualWgVariableUsageCheck.class, LegacyWfMsgUsageCheck.class,
 			OnMakeGlobalVariablesScriptCheck.class, LegacyControllerMethodDeclarationCheck.class,
-			WgParserUsageCheck.class, PlainFormatWfMessageCheck.class, WikiaLogUsageCheck.class
+			WgParserUsageCheck.class, PlainFormatWfMessageCheck.class, ThisPassedByReferenceCheck.class,
+			WikiaLogUsageCheck.class
 		);
 	}
 }
