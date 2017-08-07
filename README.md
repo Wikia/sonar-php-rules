@@ -1,4 +1,5 @@
 [![Build Status](https://api.travis-ci.org/Wikia/sonar-php-rules.svg?branch=master)](https://travis-ci.org/Wikia/sonar-php-rules)
+[![Coverage Status](https://coveralls.io/repos/github/Wikia/sonar-php-rules/badge.svg?branch=master)](https://coveralls.io/github/Wikia/sonar-php-rules?branch=master)
 
 Sonar PHP rules
 ======
